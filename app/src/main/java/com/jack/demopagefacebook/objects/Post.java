@@ -6,15 +6,16 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
-import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * Created by Jack on 3/14/17.
  */
 
 public class Post {
+
+    public static final String TYPE_LINK = "link";
+    public static final String TYPE_VIDEO = "video";
+
     public String id;
     public String type;
     public String picture;

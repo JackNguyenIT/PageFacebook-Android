@@ -13,7 +13,8 @@ import com.facebook.HttpMethod;
 public class FacebookManager {
     private static final String ACCESS_TOKEN = "1797367403917212|9fbece39d452e94f5345d95d13e3928d";
 
-    private static final String URL_PAGE = "https://www.facebook.com/chuanmenvn";
+//    private static final String URL_PAGE = "https://www.facebook.com/chuanmenvn";
+    private static final String URL_PAGE ="https://www.facebook.com/tintucvtv24";
 
     public static void getPageWithUrl(Callback callback) {
         Bundle bundle = new Bundle();

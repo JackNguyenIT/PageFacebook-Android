@@ -16,7 +16,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jack.demopagefacebook.R;
 import com.jack.demopagefacebook.abstracts.AActivity;
-import com.jack.demopagefacebook.adapters.PostAdapter;
+import com.jack.demopagefacebook.abstracts.AViewHolder;
+import com.jack.demopagefacebook.adapters.FacebookPostAdapter;
 import com.jack.demopagefacebook.manager.FacebookManager;
 import com.jack.demopagefacebook.objects.Page;
 import com.jack.demopagefacebook.objects.Post;
@@ -28,25 +29,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Jack on 3/13/17.
+ * Created by Jack on 3/18/17.
  */
 
-public class MainActivity extends AActivity {
+public class FacebookPostActivity extends AActivity {
+
     private SwipeRefreshLayout refreshLayout;
 
-    private PostAdapter adapter;
-    private Page page;
+    private FacebookPostAdapter adapter;
     private List<Post> items;
+    private Page page;
     private boolean loading = false;
     private GraphRequest nextPageRequest;
 
     @Override
     protected void initData(Bundle savedInstanceState) {
         items = new ArrayList<>();
-        adapter = new PostAdapter(items);
-        adapter.setCallback(new PostAdapter.Callback() {
+        adapter = new FacebookPostAdapter(items);
+        adapter.setCallback(new FacebookPostAdapter.Callback() {
             @Override
-            public void onClickPostLink(PostAdapter.PostVH holder, String link) {
+            public void onOpenLink(AViewHolder holder, String link) {
                 if (!TextUtils.isEmpty(link)) {
                     openWeb(link);
                 }
@@ -81,6 +83,7 @@ public class MainActivity extends AActivity {
                 outRect.set(padding, padding, padding, padding);
             }
         });
+
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             int firstVisibleItem, visibleItemCount, totalItemCount;
 
@@ -113,6 +116,34 @@ public class MainActivity extends AActivity {
             refreshLayout.setRefreshing(true);
             getDataPostPage(page.id);
         }
+    }
+
+    private void loadMore() {
+        loading = true;
+
+        nextPageRequest.setCallback(new FacebookManager.Callback() {
+            @Override
+            protected void onSuccess(String data) {
+                List<Post> list = getPostFromData(data);
+                if (list != null) {
+                    items.addAll(list);
+                }
+            }
+
+            @Override
+            protected void onNextRequest(GraphRequest nextGraphRequest) {
+                nextPageRequest = nextGraphRequest;
+            }
+
+            @Override
+            protected void onFinish() {
+                loading = false;
+                adapter.setLoadMore(false);
+                adapter.notifyDataSetChanged();
+            }
+
+        });
+        nextPageRequest.executeAsync();
     }
 
     private void getDataPage() {
@@ -169,34 +200,6 @@ public class MainActivity extends AActivity {
         });
     }
 
-    private void loadMore() {
-        loading = true;
-
-        nextPageRequest.setCallback(new FacebookManager.Callback() {
-            @Override
-            protected void onSuccess(String data) {
-                List<Post> list = getPostFromData(data);
-                if (list != null) {
-                    items.addAll(list);
-                }
-            }
-
-            @Override
-            protected void onNextRequest(GraphRequest nextGraphRequest) {
-                nextPageRequest = nextGraphRequest;
-            }
-
-            @Override
-            protected void onFinish() {
-                loading = false;
-                adapter.setLoadMore(false);
-                adapter.notifyDataSetChanged();
-            }
-
-        });
-        nextPageRequest.executeAsync();
-    }
-
     private List<Post> getPostFromData(String data) {
         try {
             JSONObject jsonObject = new JSONObject(data);
@@ -218,6 +221,4 @@ public class MainActivity extends AActivity {
                 .build();
         intent.launchUrl(this, Uri.parse(link));
     }
-
-
 }
